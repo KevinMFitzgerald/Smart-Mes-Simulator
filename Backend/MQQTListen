@@ -3,7 +3,7 @@ from paho.mqtt import client as mqtt
 
 BROKER = "localhost"
 PORT = 1883
-TOPIC = "mes/sensors/#"
+TOPIC = "sensor/#"
 
 def on_connect(client, userdata, flags, rc, properties=None):
     print("Connected to MQTT with result code:", rc)
@@ -17,11 +17,12 @@ def on_message(client, userdata, msg):
     # Try to parse as JSON for user convenience 
     try:
         data = json.loads(payload)
-        print("Parsed:", {k: data.get(k) for k in ("deviceId","ts","tempC","rh")})
+        if isinstance(data, dict):
+            print("Parsed:", {k: data.get(k) for k in ("deviceId","ts","tempC","rh")})
     except json.JSONDecodeError:
         pass
 
-client = mqtt.Client()
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_connect = on_connect
 client.on_message = on_message
 
