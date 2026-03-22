@@ -3,7 +3,7 @@ from paho.mqtt import client as mqtt
 
 BROKER = "localhost"
 PORT = 1883
-TOPIC = "mes/sensors/#"
+TOPIC = "sensors/#"
 
 def on_connect(client, userdata, flags, rc, properties=None):
     print("Connected to MQTT with result code:", rc)
@@ -21,7 +21,7 @@ def on_message(client, userdata, msg):
     except json.JSONDecodeError:
         pass
 
-client = mqtt.Client()
+client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 client.on_connect = on_connect
 client.on_message = on_message
 
