@@ -48,7 +48,11 @@ bool MQTTHandler::reconnect() {
     clientId += device_id;
     
     // Try to connect to MQTT broker
-    Serial.print("Attempting MQTT connection as ");
+    Serial.print("Attempting MQTT connection to ");
+    Serial.print(mqtt_server);
+    Serial.print(":");
+    Serial.print(mqtt_port);
+    Serial.print(" as ");
     Serial.println(clientId.c_str());
     
     if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) {
@@ -63,9 +67,13 @@ bool MQTTHandler::reconnect() {
 
 // Keep MQTT connection alive and handle any messages
 void MQTTHandler::update() {
-    // Reconnect if connection is lost
+    // Reconnect if connection is lost (with backoff to avoid spamming)
     if (!client.connected()) {
-        reconnect();
+        unsigned long now = millis();
+        if (now - lastReconnectAttempt > RECONNECT_INTERVAL) {
+            lastReconnectAttempt = now;
+            reconnect();
+        }
     }
     // Process any incoming MQTT messages
     client.loop();

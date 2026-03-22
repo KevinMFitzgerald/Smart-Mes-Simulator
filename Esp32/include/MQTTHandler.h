@@ -4,7 +4,7 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-// MQTTHandler class manages WiFi and MQTT connectivity
+
 // For publishing sensor data from ESP32 to MQTT broker
 class MQTTHandler {
 private:
@@ -24,7 +24,10 @@ private:
     // Device identifier for topic naming
     const char* device_id;
     
-    // Private function to reconnect to MQTT broker
+    // Reconnection backoff timing
+    unsigned long lastReconnectAttempt = 0;
+    const unsigned long RECONNECT_INTERVAL = 5000;  // Wait 5 seconds between attempts
+    
     bool reconnect();
     
 public:
@@ -33,10 +36,9 @@ public:
                 int mqtt_port, const char* mqtt_user, const char* mqtt_password, 
                 const char* device_id);
     
-    // Initialize WiFi and MQTT connection
     void begin();
     
-    // Call this regularly to keep MQTT connection alive
+    // keep alive connection to the MQTT broker and process incoming messages
     void update();
 
     // Block until MQTT connection is established (or timeout)
